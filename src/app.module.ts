@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -14,6 +16,17 @@ import * as Joi from '@hapi/joi';
         DB_PASS: Joi.required(),
       }),
     }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: '172.17.0.2',
+      port: 3306,
+      username: 'root',
+      password: 'passwd',
+      database: 'payee',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    UserModule,
   ],
   controllers: [],
   providers: [],
