@@ -11,7 +11,7 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UserService,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async signUp(userData): Promise<any> {
@@ -39,7 +39,7 @@ export class AuthService {
         throw new UnauthorizedException(this.INVALID_CREDENTIALS_MESSAGE);
       }
 
-      const payload = { sub: user.id }; // Avoid passing the entire user object in the token payload
+      const payload = { sub: user.id, user: user }; // Avoid passing the entire user object in the token payload
       return {
         access_token: await this.jwtService.signAsync(payload),
       };

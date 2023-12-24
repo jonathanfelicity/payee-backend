@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-// import { CreateUserDTO } from './dto/create.user.dto';
 
 @Injectable()
 export class UserService {
@@ -49,15 +48,20 @@ export class UserService {
   }
 
   async create(userData: any): Promise<User[]> {
+    // Destructure password from userData and hash it separately
+    const { password, ...restData } = userData;
+
     // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Overwrite password with hashed password
-    userData.password = hashedPassword;
-
-    const newUser = this.userRepository.create(userData);
+    // Create a new user instance with hashed password
+    const newUser = this.userRepository.create({
+      ...restData,
+      password: hashedPassword,
+    });
 
     try {
+      // Save the new user to the database
       await this.userRepository.save(newUser);
     } catch (error) {
       throw new ConflictException('Error saving user');
