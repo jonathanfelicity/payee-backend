@@ -2,11 +2,13 @@ import { Controller, HttpStatus, HttpCode, Body, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/signin.dto';
 import { SignUpDTO } from './dto/signup.dto';
+import { Public } from 'src/shared';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(@Body() signInDto: SignInDTO) {
@@ -23,6 +25,7 @@ export class AuthController {
     }
   }
 
+  @Public()
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDTO) {
     try {
