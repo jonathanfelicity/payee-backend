@@ -1,13 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
+import { WalletModule } from './wallet/wallet.module';
+import { AuthModule } from './auth/auth.module';
+import config from './config/app.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: ['.env.dev.local', '.env.test.local', '.env.prod.local'],
+      load: [config],
       isGlobal: true,
       validationSchema: Joi.object({
         DB_HOST: Joi.required(),
@@ -17,18 +21,22 @@ import { UserModule } from './user/user.module';
       }),
     }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'postgres',
       host: '172.17.0.2',
-      port: 3306,
-      username: 'root',
+      port: 5432,
+      username: 'postgres',
       password: 'passwd',
       database: 'payee',
       autoLoadEntities: true,
       synchronize: true,
     }),
+    AuthModule,
     UserModule,
+    WalletModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [Logger],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {}
+}

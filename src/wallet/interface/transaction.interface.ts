@@ -1,0 +1,38 @@
+export interface Transaction {
+  id: number;
+  transaction_ref_no: string;
+  beneficiary_bank_code: string;
+  beneficiary_account_number: string;
+  amount: string;
+  charges: string;
+  vat: string;
+  stamp_duty: string;
+  narration: string;
+  beneficiary_name_enquiry_reference_number: string;
+  beneficiary_account_name: string;
+  beneficiary_bank_verification_number: string;
+  beneficiary_kyc_level: number;
+  originator_account_name: string;
+  originator_account_number: string;
+  originator_bank_verification_number: string;
+  originator_kyc_level: number;
+  transaction_location: string;
+  channel_code: string;
+  channel_app: string;
+  transaction_broker: string;
+  transaction_status: string;
+  transaction_type: string;
+  payment_reference: string;
+  third_party_bank_name: string | null;
+  merchant_id: string;
+  response_code_nibss: string;
+  response_message_nibss: string;
+  response_code_cba: string;
+  response_message_cba: string;
+  response_code_cba_rvsl: string;
+  response_message_cba_rvsl: string;
+  transaction_source_ip_address: string;
+  transaction_time: string;
+  notification_processed: number;
+  mifos_transaction_id: number | null;
+}
