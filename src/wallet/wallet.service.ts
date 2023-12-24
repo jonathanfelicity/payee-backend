@@ -14,8 +14,7 @@ export class WalletService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.baseUrl =
-      'https://kegow-business-api-soidnv4kmq-ew.a.run.app/api/wallets';
+    this.baseUrl = this.configService.get<string>('kegow.base_uri');
   }
 
   private getHeaders(): { [key: string]: string } {
@@ -24,9 +23,12 @@ export class WalletService {
     };
   }
 
-  private async makeGetRequest<T>(url: string): Promise<AxiosResponse<T>> {
-    const headers = this.getHeaders();
-    return this.httpService.axiosRef.get<T>(url, { headers });
+  private buildUrl(
+    endpoint: string,
+    queryParams?: Record<string, any>,
+  ): string {
+    const queryString = queryParams ? this.buildQueryString(queryParams) : '';
+    return `${this.baseUrl}/${endpoint}${queryString ? `?${queryString}` : ''}`;
   }
 
   private buildQueryString(params: Record<string, any>): string {
@@ -38,30 +40,39 @@ export class WalletService {
       .join('&');
   }
 
-  private async makePostRequest<T>(
+  private async makeRequest<T>(
+    method: 'get' | 'post',
     url: string,
-    data: any,
+    data?: any,
   ): Promise<AxiosResponse<T>> {
     const headers = this.getHeaders();
-    return this.httpService.axiosRef.post<T>(url, data, { headers });
+    const requestOptions: any = { headers };
+
+    if (method === 'post') {
+      return this.httpService.axiosRef.post<T>(url, data, requestOptions);
+    }
+
+    return this.httpService.axiosRef.get<T>(url, requestOptions);
   }
 
   async create(walletdata: Wallet): Promise<AxiosResponse<Wallet>> {
-    return this.makePostRequest<Wallet>(this.baseUrl, walletdata);
+    const url = this.buildUrl('');
+    return this.makeRequest<Wallet>('post', url, walletdata);
   }
 
   async findAll(): Promise<AxiosResponse<Wallet[]>> {
-    return this.makeGetRequest<Wallet[]>(this.baseUrl);
+    const url = this.buildUrl('');
+    return this.makeRequest<Wallet[]>('get', url);
   }
 
   async findById(walletId: string): Promise<AxiosResponse<Wallet>> {
-    const url = `${this.baseUrl}/${walletId}`;
-    return this.makeGetRequest<Wallet>(url);
+    const url = this.buildUrl(walletId);
+    return this.makeRequest<Wallet>('get', url);
   }
 
-  async trnasfer(transferData: Transfer): Promise<AxiosResponse<Wallet>> {
-    const url = `${this.baseUrl}/transfers/wallet-to-wallet`;
-    return this.makePostRequest<Wallet>(url, transferData);
+  async transfer(transferData: Transfer): Promise<AxiosResponse<Wallet>> {
+    const url = this.buildUrl('transfers/wallet-to-wallet');
+    return this.makeRequest<Wallet>('post', url, transferData);
   }
 
   async findAllTransaction(
@@ -71,24 +82,16 @@ export class WalletService {
     page = 1,
     limit = 10,
   ): Promise<AxiosResponse<Transaction[]>> {
-    const queryParams = {
-      startDate,
-      endDate,
-      page,
-      limit,
-    };
-
-    const queryString = this.buildQueryString(queryParams);
-    const url = `${this.baseUrl}/${walletId}/transactions?${queryString}`;
-
-    return this.makeGetRequest<Transaction[]>(url);
+    const queryParams = { startDate, endDate, page, limit };
+    const url = this.buildUrl(`${walletId}/transactions`, queryParams);
+    return this.makeRequest<Transaction[]>('get', url);
   }
 
   async findTransactionByTXN(
     walletId: string,
     transactionRef: string,
   ): Promise<AxiosResponse<Transaction>> {
-    const url = `${this.baseUrl}/${walletId}/transactions/${transactionRef}`;
-    return this.makeGetRequest<Transaction>(url);
+    const url = this.buildUrl(`${walletId}/transactions/${transactionRef}`);
+    return this.makeRequest<Transaction>('get', url);
   }
 }

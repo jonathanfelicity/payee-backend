@@ -21,7 +21,6 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() userData: CreateUserDTO) {
-    console.log(userData);
     return this.userService.create(userData);
   }
 

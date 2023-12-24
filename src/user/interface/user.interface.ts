@@ -1,10 +1,16 @@
+interface BVNDetailsInterface {
+  bvn: string;
+  bvnDateOfBirth: string;
+}
+
 export interface User {
-  password: any;
-  id: number;
+  walletReference: string;
   firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
   middleName: string;
-  gender: 'Male' | 'Female';
+  lastName: string;
+  bvnDetails: BVNDetailsInterface;
+  customerEmail: string;
+  validatePhoneNumber(value: string): boolean;
+  photoUrl: string;
+  gender: 'male' | 'female';
 }
