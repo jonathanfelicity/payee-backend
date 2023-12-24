@@ -1,18 +1,18 @@
 import {
   Body,
   Controller,
-  Delete,
+  // Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
+  // Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create.user.dto';
-import { UpdateUserDTO } from './dto/update.user.dto';
+// import { UpdateUserDTO } from './dto/update.user.dto';
 
 @Controller('users')
 export class UserController {
@@ -33,19 +33,19 @@ export class UserController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findById(@Param('id') id: string) {
+  findById(@Param('id') id: number) {
     return this.userService.findById(id);
   }
 
-  @Patch(':id')
-  @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() userData: UpdateUserDTO) {
-    return this.userService.update(id, userData);
-  }
+  // @Patch(':id')
+  // @HttpCode(HttpStatus.OK)
+  // update(@Param('id') id: string, @Body() userData: UpdateUserDTO) {
+  //   return this.userService.update(id, userData);
+  // }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
-  }
+  // @Delete(':id')
+  // @HttpCode(HttpStatus.OK)
+  // remove(@Param('id') id: string) {
+  //   return this.userService.remove(id);
+  // }
 }

@@ -3,12 +3,14 @@ interface BVNDetailsInterface {
   bvnDateOfBirth: string;
 }
 
-export interface User {
+export interface IUser {
+  id: number;
   walletReference: string;
   firstName: string;
   middleName: string;
   lastName: string;
-  bvnDetails: BVNDetailsInterface;
+  bvn: BVNDetailsInterface;
+  password: string;
   customerEmail: string;
   validatePhoneNumber(value: string): boolean;
   photoUrl: string;

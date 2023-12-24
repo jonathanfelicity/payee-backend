@@ -8,7 +8,7 @@ export default () => ({
     port: process.env.DB_PORT,
   },
   jwt: {
-    secrect: process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET,
   },
   // KEGOW_SECURITY_KEY
   kegow: {

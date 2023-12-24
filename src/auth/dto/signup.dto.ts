@@ -39,7 +39,7 @@ class BVNDetails {
   bvnDateOfBirth: string;
 }
 
-export class CreateUserDTO {
+export class SignUpDTO {
   @IsString()
   @IsNotEmpty()
   firstName: string;

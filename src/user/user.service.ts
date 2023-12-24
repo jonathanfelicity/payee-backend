@@ -1,19 +1,18 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateUserDTO } from './dto/create.user.dto';
-import { UpdateUserDTO } from './dto/update.user.dto';
-import { User } from './interface/user.interface';
+import * as bcrypt from 'bcrypt';
+// import { CreateUserDTO } from './dto/create.user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
+    @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
 
@@ -25,58 +24,45 @@ export class UserService {
     return users;
   }
 
-  async findById(id: string): Promise<User> {
-    const query = `
-      SELECT * 
-      FROM users 
-      WHERE id = ${id}
-    `;
-    const user = await this.userRepository.query(query, [id]);
-    if (!user || user.length === 0) {
-      throw new NotFoundException('User not found.');
+  async findById(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return user[0];
+
+    return user;
   }
 
-  async findByEmail(email: string) {
-    const query = `
-      SELECT * 
-      FROM users 
-      WHERE email = ${email}
-    `;
-    const user = await this.userRepository.query(query, [email]);
-    if (!user || user.length === 0) {
-      throw new NotFoundException('User not found.');
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { customerEmail: email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return user[0];
+
+    return user;
   }
 
-  async create(userData: CreateUserDTO): Promise<User> {
+  async create(userData: any): Promise<User[]> {
+    // Hash password
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+    // Overwrite password with hashed password
+    userData.password = hashedPassword;
+
+    const newUser = this.userRepository.create(userData);
+
     try {
-      const newUser = this.userRepository.create(userData);
-      return await this.userRepository.save(newUser);
+      await this.userRepository.save(newUser);
     } catch (error) {
-      throw new ConflictException('User creation failed.');
+      throw new ConflictException('Error saving user');
     }
-  }
 
-  async update(id: string, userData: UpdateUserDTO): Promise<User> {
-    try {
-      const userToUpdate = await this.findById(id);
-      // Update the user fields manually
-      Object.assign(userToUpdate, userData);
-      return await this.userRepository.save(userToUpdate);
-    } catch (error) {
-      throw new NotFoundException('User update failed.');
-    }
-  }
-
-  async remove(id: string): Promise<void> {
-    try {
-      const user = await this.findById(id);
-      await this.userRepository.remove(user);
-    } catch (error) {
-      throw new NotFoundException('User removal failed.');
-    }
+    return newUser;
   }
 }

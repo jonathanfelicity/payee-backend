@@ -2,26 +2,33 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
-  BeforeInsert,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { BVNEntity } from './bvn.entity';
-import bcrypt from 'bcryptjs';
 
 enum UserGender {
-  Male = 'Male',
-  Female = 'Female',
+  Male = 'male',
+  Female = 'female',
 }
 
-@Entity('users')
-export class UserEntity {
+@Entity()
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true, default: 'CHAMS-WALLET' })
+  walletName: string;
+
+  @Column({ nullable: true, default: '9a37852b-5c7f-4d2-8b12-2d67b77fe64e' })
+  walletReference: string;
+
+  @Column({ nullable: true })
+  walletId: string;
+
+  @Column({
+    nullable: true,
+    default: 'https://example.com/john-doe-avatar.jpg',
+  })
   photoUrl: string;
 
   @Column({ nullable: false })
@@ -34,10 +41,7 @@ export class UserEntity {
   middleName: string;
 
   @Column({ nullable: false, unique: true })
-  email: string;
-
-  @Column({ nullable: false, unique: true })
-  phone: string;
+  customerEmail: string;
 
   @Column({
     type: 'enum',
@@ -48,21 +52,18 @@ export class UserEntity {
   @Column({ nullable: false })
   password: string;
 
-  @BeforeInsert()
-  async hashPassword() {
-    if (this.password) {
-      const saltRounds = 10;
-      this.password = await bcrypt.hash(this.password, saltRounds);
-    }
-  }
+  @Column({ nullable: false, unique: true })
+  phoneNumber: string;
 
-  @OneToOne(() => BVNEntity, (bvn) => bvn.user)
-  @JoinColumn()
-  bvn: BVNEntity;
+  @Column({ default: false })
+  isVerified: boolean;
 
-  @CreateDateColumn({ name: 'created_at' }) // Column for storing creation timestamp
+  @Column('simple-json', { nullable: true })
+  bvnDetails: object;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' }) // Column for storing update timestamp
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
