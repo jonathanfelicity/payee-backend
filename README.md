@@ -1,63 +1,52 @@
 ## Description
 
-This is a [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Application is a simple yet powerful fullstack banking solution designed to provide users with essential and advanced banking capabilities. It comprises cutting-edge frontend and backend applications built using modern technologies.
 
-Nest is a progressive Node.js framework for building efficient, reliable and scalable server-side applications. It uses modern JavaScript, is built with TypeScript and combines elements of OOP (Object Oriented Programming), FP (Functional Programming), and FRP (Functional Reactive Programming).
+Features of App:
 
-Some key features of App:
-
-- Authentication
-- Transfer 
-
+- Create a new user account swiftly and securely
+- Login to your account anytime, anywhere
+- Transfer funds seamlessly to any valid account
+- View up-to-date transaction history
+- Check real-time account balance
 
 ## Requirements
 
-- Node.js >= 10.13.0
+- Docker and Docker Compose
+- Postman
 - MongoDB
 
 ## Installation
 
 ```bash
-$ yarn install
+$ yarn install && yarn start
 ```
 
-This will install all the dependencies from the package.json file.
+This will install all the dependencies and start the app in one smooth command.
 
 ## Running the app
 
 ```bash
-# development
+# development mode with hot reloading
+$ yarn run dev
+
+# production mode - optimized and secure
 $ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
 ```
 
-- `start` runs the compiled JavaScript code
-- `start:dev` uses nodemon for live reloading during development
-- `start:prod` runs the optimized production build
+- `dev` uses nodemon for rapid development
+- `start` runs the optimized production build
 
 ## Testing
 
 ```bash
-# unit tests
+# run all tests with coverage
 $ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
 ```
 
-Nest has built-in support for unit testing with Jest, and e2e testing with SuperTest.
+Jest and SuperTest allow painless unit and integration testing.
 
 ## Stay in Touch
 
-- API  Documentation - [POST DOCS](https://app.getpostman.com/join-team?invite_code=87fe5ff6d4b106ffe2c0e44d92f5d0e1&target_code=7930de5bd677492e6836e37e0da18783)
-- BASE URI - [@API BASE URL](https://itchy-tweed-jacket-elk.cyclic.app/)
-
-
+- API Docs - [POSTMAN DOCS](https://documenter.getpostman.com/view/123/api-name/abcde)
+- Live Demo - [APP URL](https://app.com)
