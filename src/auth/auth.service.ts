@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -39,9 +44,10 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      // console.log(error);
-      // Handle any specific error if needed or rethrow for global handling
-      throw error;
+      throw new HttpException(
+        'Something went wrong while signing up',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -72,9 +78,10 @@ export class AuthService {
         },
       };
     } catch (error) {
-      // Handle any specific error if needed or rethrow for global handling
-      console.log(error);
-      throw error;
+      throw new HttpException(
+        'Something went wrong while signing in',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

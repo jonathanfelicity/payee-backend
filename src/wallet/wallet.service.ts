@@ -17,12 +17,21 @@ export class WalletService {
     this.baseUrl = this.configService.get<string>('kegow.base_uri');
   }
 
+  /**
+   * Retrieves the headers needed for HTTP requests.
+   * @returns Object containing authorization headers.
+   */
   private getHeaders(): { [key: string]: string } {
     return {
       Authorization: this.configService.get<string>('kegow.security_key'),
     };
   }
 
+  /**
+   * Builds a complete URL from provided path segments.
+   * @param paths - Path segments to be joined and encoded in the URL.
+   * @returns The constructed URL string.
+   */
   private buildUrl(...paths: (string | number)[]): string {
     const joinedPaths = paths
       .map((segment) => encodeURIComponent(segment))
@@ -30,6 +39,13 @@ export class WalletService {
     return `${this.baseUrl}/${joinedPaths}`;
   }
 
+  /**
+   * Makes an HTTP request using Axios based on the specified method.
+   * @param method - HTTP method ('get' or 'post').
+   * @param url - The URL to make the request.
+   * @param data - Optional data to be sent in the request payload for 'post' requests.
+   * @returns Promise with the AxiosResponse containing the HTTP response.
+   */
   private async makeRequest<T>(
     method: 'get' | 'post',
     url: string,
@@ -50,26 +66,45 @@ export class WalletService {
     }
   }
 
+  /**
+   * Creates a new wallet.
+   * @param walletData - Data for creating the wallet.
+   * @returns Promise with the AxiosResponse containing the created wallet.
+   */
   async create(walletData: Wallet): Promise<AxiosResponse<Wallet>> {
     try {
       const url = this.buildUrl('wallets');
       return await this.makeRequest<Wallet>('post', url, walletData);
     } catch (error) {
-      // Handle the error appropriately, log it, or throw a custom error
-      throw error;
+      throw new HttpException(
+        `Failed to create wallet`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
+  /**
+   * Retrieves all wallets.
+   * @returns Promise with the AxiosResponse containing an array of wallets.
+   */
   async findAll(): Promise<AxiosResponse<Wallet[]>> {
     try {
       const url = this.buildUrl('wallets');
       return await this.makeRequest<Wallet[]>('get', url);
     } catch (error) {
-      // Handle the error appropriately, log it, or throw a custom error
-      throw error; // Re-throw the error or handle it according to your application's needs
+      throw new HttpException(
+        `Failed to fetch wallets`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
+  /**
+   * Retrieves a specific wallet by ID.
+   * @param walletId - The ID of the wallet to retrieve.
+   * @returns Promise with the AxiosResponse containing the retrieved wallet.
+   * @throws HttpException if the wallet with the specified ID is not found or an internal server error occurs.
+   */
   async findById(walletId: string): Promise<AxiosResponse<Wallet>> {
     try {
       const url = this.buildUrl(`wallets`, walletId);
@@ -91,6 +126,12 @@ export class WalletService {
     }
   }
 
+  /**
+   * Initiates a transfer of funds between wallets.
+   * @param transferData - Data required for transferring funds.
+   * @returns Promise with the AxiosResponse containing the updated wallet after the transfer.
+   * @throws HttpException if the transfer fails or an internal server error occurs.
+   */
   async transfer(transferData: TransferDTO): Promise<AxiosResponse<Wallet>> {
     try {
       // Construct URL for transferring funds from one wallet to another
@@ -115,6 +156,16 @@ export class WalletService {
     }
   }
 
+  /**
+   * Retrieves transactions for a specific wallet within a specified date range with pagination.
+   * @param walletId - The ID of the wallet to retrieve transactions for.
+   * @param startDate - Start date for filtering transactions.
+   * @param endDate - End date for filtering transactions.
+   * @param page - Page number for pagination (default: 1).
+   * @param limit - Limit of transactions per page (default: 10).
+   * @returns Promise with the AxiosResponse containing an array of transactions.
+   * @throws HttpException if fetching transactions fails or an internal server error occurs.
+   */
   async findAllTransaction(
     walletId: string,
     startDate: string,
@@ -147,6 +198,13 @@ export class WalletService {
     }
   }
 
+  /**
+   * Retrieves a specific transaction for a wallet by transaction reference.
+   * @param walletId - The ID of the wallet to retrieve the transaction for.
+   * @param transactionRef - The reference ID of the transaction.
+   * @returns Promise with the AxiosResponse containing details of the specified transaction.
+   * @throws HttpException if fetching the transaction fails or an internal server error occurs.
+   */
   async findTransactionByTXN(
     walletId: string,
     transactionRef: string,
