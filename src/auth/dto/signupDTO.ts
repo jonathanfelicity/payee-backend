@@ -57,4 +57,7 @@ export class SignUpDTO {
 
   @IsIn(['male', 'female'])
   gender: 'male' | 'female';
+
+  @IsString()
+  password: string;
 }
