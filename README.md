@@ -14,12 +14,15 @@ Features of App:
 
 - Docker and Docker Compose
 - Postman
-- MongoDB
+- PostgreSQL
+- Node16^
+- Yarn 
 
 ## Installation
 
 ```bash
-$ yarn install && yarn start
+$ git clone 'git@github.com:jonathanfelicity/payee-backend.git'; cd payee-backend
+$ yarn install; yarn start
 ```
 
 This will install all the dependencies and start the app in one smooth command.
