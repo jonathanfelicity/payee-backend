@@ -5,7 +5,6 @@ import { Wallet } from './interface/wallet.interface';
 import { Transaction } from './interface/transaction.interface';
 import { HttpService } from '@nestjs/axios';
 import { TransferDTO } from './dto/TransferDTO';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class WalletService {
@@ -15,7 +14,6 @@ export class WalletService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly logger: Logger,
-    private readonly userService: UserService,
   ) {
     this.baseUrl = this.configService.get<string>('kegow.base_uri');
   }

@@ -51,7 +51,6 @@ export class WalletController {
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
-    console.log(req.user);
     const transactions = await this.walletService.findAllTransaction(
       walletId,
       startDate,
@@ -63,7 +62,6 @@ export class WalletController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
   @Get('transactions/:walletId/:transactionRef')
   async findTransactionByTXN(
     @Param('walletId') walletId: string,
