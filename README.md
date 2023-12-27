@@ -52,4 +52,4 @@ Jest and SuperTest allow painless unit and integration testing.
 ## Stay in Touch
 
 - API Docs - [POSTMAN DOCS](https://app.getpostman.com/join-team?invite_code=87fe5ff6d4b106ffe2c0e44d92f5d0e1&target_code=de0f4f431fe57bdcc94fbebdc4f5ef72)
-- Live Demo - [APP URL](https://itchy-tweed-jacket-elk.cyclic.app/)
+- Live API - [APP URL](https://itchy-tweed-jacket-elk.cyclic.app/)
