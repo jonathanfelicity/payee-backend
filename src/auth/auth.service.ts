@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { WalletService } from 'src/wallet/wallet.service';
 import { Wallet } from 'src/wallet/interface/wallet.interface';
 import { IUser } from 'src/user/interface/user.interface';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly walletService: WalletService,
+    private readonly logger: Logger,
   ) {}
 
   async signUp(walletData: Wallet): Promise<any> {
@@ -44,6 +46,7 @@ export class AuthService {
 
       return user;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         'Something went wrong while signing up',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -78,6 +81,7 @@ export class AuthService {
         },
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         'Something went wrong while signing in',
         HttpStatus.INTERNAL_SERVER_ERROR,

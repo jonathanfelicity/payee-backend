@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { WalletModule } from 'src/wallet/wallet.module';
+import { Logger } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WalletModule } from 'src/wallet/wallet.module';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    Logger,
   ],
   controllers: [AuthController],
   exports: [AuthService],

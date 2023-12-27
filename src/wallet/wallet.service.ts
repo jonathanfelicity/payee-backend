@@ -1,10 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { Wallet } from './interface/wallet.interface';
 import { Transaction } from './interface/transaction.interface';
 import { HttpService } from '@nestjs/axios';
 import { TransferDTO } from './dto/TransferDTO';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class WalletService {
@@ -13,6 +14,8 @@ export class WalletService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly logger: Logger,
+    private readonly userService: UserService,
   ) {
     this.baseUrl = this.configService.get<string>('kegow.base_uri');
   }
@@ -62,7 +65,11 @@ export class WalletService {
 
       return response;
     } catch (error) {
-      throw new Error(`Request failed: ${error.message}`);
+      this.logger.error(error);
+      throw new HttpException(
+        `Request failed`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -76,6 +83,7 @@ export class WalletService {
       const url = this.buildUrl('wallets');
       return await this.makeRequest<Wallet>('post', url, walletData);
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         `Failed to create wallet`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -92,6 +100,7 @@ export class WalletService {
       const url = this.buildUrl('wallets');
       return await this.makeRequest<Wallet[]>('get', url);
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         `Failed to fetch wallets`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -119,6 +128,7 @@ export class WalletService {
 
       return response;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         `Failed to fetch wallet with ID ${walletId}: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -148,7 +158,7 @@ export class WalletService {
       return response;
     } catch (error) {
       // Handle errors - log or throw appropriate exceptions
-
+      this.logger.error(error);
       throw new HttpException(
         `Transfer failed: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -188,7 +198,7 @@ export class WalletService {
       return response;
     } catch (error) {
       // Handle errors - log or throw appropriate exceptions
-      console.error('Failed to fetch transactions:', error.message);
+      this.logger.error(error);
 
       // If required, throw an HTTP exception or return a custom error response
       throw new HttpException(
@@ -224,6 +234,7 @@ export class WalletService {
       return response;
     } catch (error) {
       // If required, throw an HTTP exception or return a custom error response
+      this.logger.error(error);
       throw new HttpException(
         `Failed to fetch transaction ${transactionRef} for wallet ${walletId}: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,

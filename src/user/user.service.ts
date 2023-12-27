@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,12 +9,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -22,11 +26,20 @@ export class UserService {
    * @returns A Promise that resolves to an array of User entities.
    */
   async findAll(limit: number, offset: number): Promise<User[]> {
-    const users = await this.userRepository.find({
-      skip: offset,
-      take: limit,
-    });
-    return users;
+    try {
+      const users = await this.userRepository.find({
+        skip: offset,
+        take: limit,
+      });
+      return users;
+    } catch (error) {
+      // Handle the error appropriately
+      this.logger.error(error);
+      throw new HttpException(
+        'Failed to fetch users',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      ); // You can customize the error message here
+    }
   }
 
   /**
@@ -36,15 +49,24 @@ export class UserService {
    * @throws NotFoundException if the user with the given ID is not found.
    */
   async findById(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id },
+      });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      // Handle the error appropriately
+      this.logger.error(error);
+      throw new HttpException(
+        'An error occurred while finding user by ID',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    return user;
   }
 
   /**
@@ -54,15 +76,24 @@ export class UserService {
    * @throws NotFoundException if the user with the given email is not found.
    */
   async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { email: email },
-    });
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email: email },
+      });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      // Handle the error appropriately
+      this.logger.error(error);
+      throw new HttpException(
+        'An error occurred while finding user by email',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    return user;
   }
 
   /**
