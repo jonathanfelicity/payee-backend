@@ -3,6 +3,9 @@ import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { WalletService } from 'src/wallet/wallet.service';
+import { Wallet } from 'src/wallet/interface/wallet.interface';
+import { IUser } from 'src/user/interface/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -12,20 +15,37 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly walletService: WalletService,
   ) {}
 
-  async signUp(userData): Promise<any> {
+  async signUp(walletData: Wallet): Promise<any> {
     try {
+      walletData.walletReference = '9a37852b-5c7f-4d2-8b12-2d67b77fe64e';
+      walletData.walletName = 'CHAMS-WALLET';
+      walletData.photoUrl = 'https://example.com/john-doe-avatar.jpg';
+      const { password, ...walletDataWithoutPassword } = walletData;
+      const wallet: any = await this.walletService.create(
+        walletDataWithoutPassword,
+      );
+
+      const userData: IUser = {
+        walletId: wallet.data.id,
+        firstName: walletData.firstName,
+        lastName: walletData.lastName,
+        email: walletData.customerEmail,
+        password: password,
+      };
       const user = await this.userService.create(userData);
-      // You might want to omit returning sensitive data like the password here
+
       return user;
     } catch (error) {
+      // console.log(error);
       // Handle any specific error if needed or rethrow for global handling
       throw error;
     }
   }
 
-  async signIn(email: string, password: string) {
+  async signIn(email: string, password: string): Promise<any> {
     try {
       const user = await this.userService.findByEmail(email);
 
@@ -39,9 +59,17 @@ export class AuthService {
         throw new UnauthorizedException(this.INVALID_CREDENTIALS_MESSAGE);
       }
 
-      const payload = { sub: user.id, user: user }; // Avoid passing the entire user object in the token payload
+      const payload = { sub: user.id }; // Avoid passing the entire user object in the token payload
       return {
         access_token: await this.jwtService.signAsync(payload),
+        walletId: user.walletId,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          walletId: user.walletId,
+        },
       };
     } catch (error) {
       // Handle any specific error if needed or rethrow for global handling

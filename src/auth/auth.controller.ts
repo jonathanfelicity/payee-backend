@@ -1,7 +1,7 @@
 import { Controller, HttpStatus, HttpCode, Body, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignInDTO } from './dto/signin.dto';
-import { SignUpDTO } from './dto/signup.dto';
+import { SignInDTO } from './dto/signinDTO';
+import { SignUpDTO } from './dto/signupDTO';
 import { Public } from 'src/shared';
 
 @Controller('auth')
@@ -29,7 +29,7 @@ export class AuthController {
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDTO) {
     try {
-      const result = await this.authService.signUp(signUpDto); // Pass the necessary sign-up data
+      const result = await this.authService.signUp(signUpDto);
       // If sign-up is successful, you might return a success message or created user data
       return { success: true, data: result };
     } catch (error) {

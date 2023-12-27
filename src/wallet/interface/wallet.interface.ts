@@ -12,4 +12,5 @@ export interface Wallet {
   phoneNumber: string; // THIS VALUE IS UNIQUE
   photoUrl: string; // USE A VALID IMAGE URL
   gender: 'male' | 'female'; // ['male','female']
+  password?: string;
 }

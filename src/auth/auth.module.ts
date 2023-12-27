@@ -5,9 +5,11 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { WalletModule } from 'src/wallet/wallet.module';
 
 @Module({
   imports: [
+    WalletModule,
     UserModule,
     JwtModule.register({
       global: true,

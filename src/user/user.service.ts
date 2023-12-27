@@ -37,7 +37,7 @@ export class UserService {
 
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { customerEmail: email },
+      where: { email: email },
     });
 
     if (!user) {
@@ -64,6 +64,7 @@ export class UserService {
       // Save the new user to the database
       await this.userRepository.save(newUser);
     } catch (error) {
+      console.log(error);
       throw new ConflictException('Error saving user');
     }
 

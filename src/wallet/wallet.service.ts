@@ -2,9 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { Wallet } from './interface/wallet.interface';
-import { Transfer } from './interface/transfer.interface';
 import { Transaction } from './interface/transaction.interface';
 import { HttpService } from '@nestjs/axios';
+import { TransferDTO } from './dto/TransferDTO';
 
 @Injectable()
 export class WalletService {
@@ -23,21 +23,11 @@ export class WalletService {
     };
   }
 
-  private buildUrl(
-    endpoint: string,
-    queryParams?: Record<string, any>,
-  ): string {
-    const queryString = queryParams ? this.buildQueryString(queryParams) : '';
-    return `${this.baseUrl}/${endpoint}${queryString ? `?${queryString}` : ''}`;
-  }
-
-  private buildQueryString(params: Record<string, any>): string {
-    return Object.keys(params)
-      .map(
-        (key) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`,
-      )
-      .join('&');
+  private buildUrl(...paths: (string | number)[]): string {
+    const joinedPaths = paths
+      .map((segment) => encodeURIComponent(segment))
+      .join('/');
+    return `${this.baseUrl}/${joinedPaths}`;
   }
 
   private async makeRequest<T>(
@@ -56,27 +46,33 @@ export class WalletService {
 
       return response;
     } catch (error) {
-      // Handle and/or log errors here
       throw new Error(`Request failed: ${error.message}`);
     }
   }
 
   async create(walletData: Wallet): Promise<AxiosResponse<Wallet>> {
-    const url = this.buildUrl('');
-    return this.makeRequest<Wallet>('post', url, walletData);
+    try {
+      const url = this.buildUrl('wallets');
+      return await this.makeRequest<Wallet>('post', url, walletData);
+    } catch (error) {
+      // Handle the error appropriately, log it, or throw a custom error
+      throw error;
+    }
   }
 
   async findAll(): Promise<AxiosResponse<Wallet[]>> {
-    const url = this.buildUrl('');
-    return this.makeRequest<Wallet[]>('get', url);
+    try {
+      const url = this.buildUrl('wallets');
+      return await this.makeRequest<Wallet[]>('get', url);
+    } catch (error) {
+      // Handle the error appropriately, log it, or throw a custom error
+      throw error; // Re-throw the error or handle it according to your application's needs
+    }
   }
 
   async findById(walletId: string): Promise<AxiosResponse<Wallet>> {
     try {
-      // Construct the URL for retrieving a wallet by ID
-      const url = this.buildUrl(walletId);
-
-      // Make a GET request to fetch the wallet data by its ID
+      const url = this.buildUrl(`wallets`, walletId);
       const response = await this.makeRequest<Wallet>('get', url);
 
       if (response.status === HttpStatus.NOT_FOUND) {
@@ -84,12 +80,10 @@ export class WalletService {
           `Wallet with ID ${walletId} not found`,
           HttpStatus.NOT_FOUND,
         );
-        return;
       }
 
       return response;
     } catch (error) {
-      // Handle other errors or log them for better debugging
       throw new HttpException(
         `Failed to fetch wallet with ID ${walletId}: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -97,9 +91,28 @@ export class WalletService {
     }
   }
 
-  async transfer(transferData: Transfer): Promise<AxiosResponse<Wallet>> {
-    const url = this.buildUrl('transfers/wallet-to-wallet');
-    return this.makeRequest<Wallet>('post', url, transferData);
+  async transfer(transferData: TransferDTO): Promise<AxiosResponse<Wallet>> {
+    try {
+      // Construct URL for transferring funds from one wallet to another
+      const url = this.buildUrl('transfers', 'wallet-to-wallet');
+
+      // Make a POST request to initiate the transfer
+      const response = await this.makeRequest<Wallet>(
+        'post',
+        url,
+        transferData,
+      );
+
+      // Return the response after successful transfer
+      return response;
+    } catch (error) {
+      // Handle errors - log or throw appropriate exceptions
+
+      throw new HttpException(
+        `Transfer failed: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findAllTransaction(
@@ -109,16 +122,54 @@ export class WalletService {
     page = 1,
     limit = 10,
   ): Promise<AxiosResponse<Transaction[]>> {
-    const queryParams = { startDate, endDate, page, limit };
-    const url = this.buildUrl(`${walletId}/transactions`, queryParams);
-    return this.makeRequest<Transaction[]>('get', url);
+    try {
+      // Construct the URL to retrieve transactions for a specific wallet with pagination
+      const url = this.buildUrl('wallets', walletId);
+      
+      // Make a GET request to fetch transactions based on the given parameters
+      const response = await this.makeRequest<Transaction[]>(
+        'get',
+        url +
+          `/transactions?startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}`,
+      );
+
+      // Return the response containing transactions
+      return response;
+    } catch (error) {
+      // Handle errors - log or throw appropriate exceptions
+      console.error('Failed to fetch transactions:', error.message);
+
+      // If required, throw an HTTP exception or return a custom error response
+      throw new HttpException(
+        `Failed to fetch transactions for wallet ${walletId}: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findTransactionByTXN(
     walletId: string,
     transactionRef: string,
   ): Promise<AxiosResponse<Transaction>> {
-    const url = this.buildUrl(`${walletId}/transactions/${transactionRef}`);
-    return this.makeRequest<Transaction>('get', url);
+    try {
+      // Construct the URL to fetch a specific transaction for a wallet
+      const url = this.buildUrl(
+        `wallets`,
+        walletId,
+        'transactions',
+        transactionRef,
+      );
+      // Make a GET request to retrieve the transaction details
+      const response = await this.makeRequest<Transaction>('get', url);
+
+      // Return the response containing the transaction details
+      return response;
+    } catch (error) {
+      // If required, throw an HTTP exception or return a custom error response
+      throw new HttpException(
+        `Failed to fetch transaction ${transactionRef} for wallet ${walletId}: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

@@ -5,6 +5,7 @@ import {
   ValidateNested,
   IsNotEmpty,
   Validate,
+  IsUrl,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -39,7 +40,15 @@ class BVNDetails {
   bvnDateOfBirth: string;
 }
 
-export class SignUpDTO {
+export class CreateUserDTO {
+  @IsString()
+  @IsNotEmpty()
+  walletReference: string = '9a37852b-5c7f-4d2-8b12-2d67b77fe64e';
+
+  @IsString()
+  @IsNotEmpty()
+  walletName: string = 'CHAMS-WALLET';
+
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -65,6 +74,10 @@ export class SignUpDTO {
 
   @IsString()
   password: string;
+
+  @IsUrl()
+  @IsNotEmpty()
+  photoUrl: string = 'https://example.com/john-doe-avatar.jpg';
 
   @IsEnum(['male', 'female'])
   gender: 'male' | 'female';

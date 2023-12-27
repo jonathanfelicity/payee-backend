@@ -1,19 +1,28 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
+  Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
+import { CreateWalletDTO } from './dto/walletDTO';
+import { TransferDTO } from './dto/TransferDTO';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('wallets')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
+
   @Post()
-  async create() {
-    return 'HElo';
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() wallet: CreateWalletDTO) {
+    return (await this.walletService.create(wallet)).data;
   }
 
   @Get()
@@ -27,11 +36,43 @@ export class WalletController {
     return (await this.walletService.findById(id)).data;
   }
 
-  async transfer(
-    senderWalletNumber: string,
-    receiverWalletNumber: string,
-    transferAmount: string,
+  @Post('transfer')
+  async transfer(@Body() transfer: TransferDTO) {
+    return (await this.walletService.transfer(transfer)).data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('transactions/:walletId')
+  async findAllTransactions(
+    @Request() req,
+    @Param('walletId') walletId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
   ) {
-    return `${senderWalletNumber} ${receiverWalletNumber} ${transferAmount}`;
+    console.log(req.user);
+    const transactions = await this.walletService.findAllTransaction(
+      walletId,
+      startDate,
+      endDate,
+      page,
+      limit,
+    );
+    return transactions.data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('transactions/:walletId/:transactionRef')
+  async findTransactionByTXN(
+    @Param('walletId') walletId: string,
+    @Param('transactionRef') transactionRef: string,
+  ) {
+    const transaction = await this.walletService.findTransactionByTXN(
+      walletId,
+      transactionRef,
+    );
+    return transaction.data;
   }
 }
