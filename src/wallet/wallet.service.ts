@@ -125,7 +125,7 @@ export class WalletService {
     try {
       // Construct the URL to retrieve transactions for a specific wallet with pagination
       const url = this.buildUrl('wallets', walletId);
-      
+
       // Make a GET request to fetch transactions based on the given parameters
       const response = await this.makeRequest<Transaction[]>(
         'get',
