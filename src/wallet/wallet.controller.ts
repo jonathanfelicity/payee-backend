@@ -8,12 +8,10 @@ import {
   Post,
   Query,
   Request,
-  UseGuards,
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { CreateWalletDTO } from './dto/walletDTO';
 import { TransferDTO } from './dto/TransferDTO';
-import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('wallets')
 export class WalletController {
